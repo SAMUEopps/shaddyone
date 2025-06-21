@@ -69,6 +69,14 @@ const SuperAdminLayout = async ({
                 Users
               </Link>
             </li>
+            <li>
+            <Link
+              className={'requests' === activeItem ? 'active' : ''}
+              href='/superadmin/seller-requests'
+            >
+              Seller Requests
+            </Link>
+          </li>
           </ul>
         </div>
         <div className='px-4 md:col-span-4'>{children}</div>

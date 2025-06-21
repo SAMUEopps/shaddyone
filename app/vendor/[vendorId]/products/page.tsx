@@ -8,7 +8,7 @@ export const metadata = {
 const VendorProductsPage = ({ params }: { params: { vendorId: string } }) => {
   return (
     <VendorLayout activeItem='products' vendorId={params.vendorId}>
-      <VendorProducts vendorId={params.vendorId} />
+      <VendorProducts />
     </VendorLayout>
   );
 };

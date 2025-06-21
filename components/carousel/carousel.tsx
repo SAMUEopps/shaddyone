@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/carousel';
 import productService from '@/lib/services/productService';
 import { delay } from '@/lib/utils';
+import banner2 from '../../public/images/banner/banner2.webp';
+
 
 const Carousel = async () => {
   await delay(3000);
@@ -23,7 +25,7 @@ const Carousel = async () => {
             <div className='w-full overflow-hidden rounded-lg'>
               <Link href={`/product/${product.slug}`}>
                 <Image
-                  src={product.banner!}
+                  src={banner2}
                   className='h-[304px] w-full object-cover lg:h-[536px]'
                   width={1500}
                   height={300}

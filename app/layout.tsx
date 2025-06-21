@@ -25,7 +25,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
             <div className='drawer-content'>
               <div className='flex min-h-screen flex-col'>
                 <Header />
-                {children}
+                <main className='flex-grow'>
+                  {children}
+                </main>
                 <Footer />
               </div>
             </div>
@@ -43,5 +45,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     </html>
   );
 };
+
 
 export default RootLayout;

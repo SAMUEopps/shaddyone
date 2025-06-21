@@ -58,12 +58,14 @@ export const POST = auth(async (req: any) => {
 }) as any;
 */
 
+// C:\Users\Admin\Desktop\Fashion-Corner-Next.js-Ecommerce\app\api\vendor\products\route.ts
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
 import ProductModel from '@/lib/models/ProductModel';
+import UserModel from '@/lib/models/UserModel';
 
 export const GET = auth(async (req: any) => {
-  if (!req.auth || req.auth.user?.role !== 'superAdmin') {
+  if (!req.auth || !['vendor', 'admin'].includes(req.auth.user?.role)) {
     return new Response(
       JSON.stringify({ message: 'unauthorized' }),
       {
@@ -71,8 +73,16 @@ export const GET = auth(async (req: any) => {
       },
     );
   }
+  
   await dbConnect();
-  const products = await ProductModel.find();
+  
+  // For vendors, only get their own products
+  // Admins can see all products (if needed)
+  const filter = req.auth.user?.role === 'vendor' 
+    ? { vendor: req.auth.user._id }
+    : {};
+    
+  const products = await ProductModel.find(filter).populate('vendor', 'name email');
   return new Response(
     JSON.stringify(products),
     {
@@ -82,7 +92,7 @@ export const GET = auth(async (req: any) => {
 }) as any;
 
 export const POST = auth(async (req: any) => {
-  if (!req.auth || req.auth.user?.role !== 'superAdmin') {
+  if (!req.auth || !['vendor', 'admin'].includes(req.auth.user?.role)) {
     return new Response(
       JSON.stringify({ message: 'unauthorized' }),
       {
@@ -90,7 +100,9 @@ export const POST = auth(async (req: any) => {
       },
     );
   }
+  
   await dbConnect();
+  
   const product = new ProductModel({
     name: 'sample name',
     slug: 'sample-name-' + Math.random(),
@@ -102,7 +114,9 @@ export const POST = auth(async (req: any) => {
     description: 'sample description',
     rating: 0,
     numReviews: 0,
+    vendor: req.auth.user._id, 
   });
+  
   try {
     await product.save();
     return new Response(
@@ -123,3 +137,57 @@ export const POST = auth(async (req: any) => {
     );
   }
 }) as any;
+
+export const DELETE = auth(async (req: any, { params }: { params: { id: string } }) => {
+  if (!req.auth || !['vendor', 'admin'].includes(req.auth.user?.role)) {
+    return new Response(
+      JSON.stringify({ message: 'unauthorized' }),
+      {
+        status: 401,
+      },
+    );
+  }
+  
+  await dbConnect();
+  
+  const productId = params.id;
+  const product = await ProductModel.findById(productId);
+  
+  if (!product) {
+    return new Response(
+      JSON.stringify({ message: 'Product not found' }),
+      {
+        status: 404,
+      },
+    );
+  }
+  
+  // Check if the vendor owns this product (unless admin)
+  if (req.auth.user?.role === 'vendor' && product.vendor.toString() !== req.auth.user._id) {
+    return new Response(
+      JSON.stringify({ message: 'unauthorized' }),
+      {
+        status: 401,
+      },
+    );
+  }
+  
+  try {
+    await ProductModel.deleteOne({ _id: productId });
+    return new Response(
+      JSON.stringify({ message: 'Product deleted successfully' }),
+      {
+        status: 200,
+      },
+    );
+  } catch (err: any) {
+    return new Response(
+      JSON.stringify({ message: err.message }),
+      {
+        status: 500,
+      },
+    );
+  }
+}
+
+) as any;

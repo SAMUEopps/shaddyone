@@ -2,6 +2,7 @@ import { cache } from 'react';
 
 import dbConnect from '@/lib/dbConnect';
 import ProductModel, { Product } from '@/lib/models/ProductModel';
+import mongoose from 'mongoose';
 
 export const revalidate = 3600;
 
@@ -11,6 +12,21 @@ const getLatest = cache(async () => {
     .sort({ _id: -1 })
     .limit(8)
     .lean(); // Converts the MongoDB documents to plain JavaScript objects
+  return products as Product[];
+});
+
+/*const getByVendor = cache(async (vendorId: string) => {
+  await dbConnect();
+  const products = await ProductModel.find({ vendor: vendorId })
+    .sort({ _id: -1 })
+    .lean();
+  return products as Product[];
+});*/
+const getByVendor = cache(async (vendorId: string) => {
+  await dbConnect();
+  const products = await ProductModel.find({ vendor: new mongoose.Types.ObjectId(vendorId) })
+    .sort({ _id: -1 })
+    .lean();
   return products as Product[];
 });
 
@@ -139,6 +155,7 @@ const productService = {
   getByQuery,
   getCategories,
   getTopRated,
+  getByVendor,
 };
 
 export default productService;

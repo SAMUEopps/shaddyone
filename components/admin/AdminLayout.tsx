@@ -68,6 +68,16 @@ const AdminLayout = async ({
               >
                 Users
               </Link>
+              
+        
+            </li>
+                <li>
+              <Link
+                className={'requests' === activeItem ? 'active' : ''}
+                href='/admin/seller-requests'
+              >
+                Seller Requests
+              </Link>
             </li>
           </ul>
         </div>
